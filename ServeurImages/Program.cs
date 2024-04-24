@@ -1,4 +1,9 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using ServeurImages.Data;
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<ServeurImagesContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ServeurImagesContext") ?? throw new InvalidOperationException("Connection string 'ServeurImagesContext' not found.")));
 
 builder.Services.AddCors(options =>
 {
