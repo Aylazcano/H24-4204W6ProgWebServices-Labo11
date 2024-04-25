@@ -35,7 +35,7 @@ namespace ServeurImages.Controllers
             return await _context.Picture.ToListAsync();
         }
 
-        // GET: api/Pictures/5
+        // GET: api/GetFile/{size}/{id}
         [HttpGet("{size}/{id}")]
         public async Task<ActionResult> GetFile(string size, int id)
         {
@@ -47,7 +47,7 @@ namespace ServeurImages.Controllers
             Picture? picture = await _context.Picture.FindAsync(id);
             if (picture == null || picture.FileName == null || picture.MimeType == null)
             {
-                return NotFound(new { Message = "Cette image n'existe pas!" });
+                return NotFound(new { Message = "Cette image n'existe pas." });
             }
             if (!(Regex.Match(size, "lg|sm").Success))
             {
@@ -92,7 +92,7 @@ namespace ServeurImages.Controllers
                     return Ok();
                 }
                 else 
-                    return NotFound(new { Message = "Aucune image fournie" });
+                    return NotFound(new { Message = "Aucune image fournie." });
             }
             catch (Exception)
             {
@@ -101,7 +101,7 @@ namespace ServeurImages.Controllers
 
         }
 
-        // DELETE: api/Pictures/5
+        // DELETE: api/DeletePicture/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePicture(int id)
         {
@@ -112,7 +112,13 @@ namespace ServeurImages.Controllers
             var picture = await _context.Picture.FindAsync(id);
             if (picture == null)
             {
-                return NotFound();
+                return NotFound( new {Message = "Cette image n'existe pas."});
+            }
+            
+            if (picture.MimeType != null && picture.FileName != null)
+            {
+                System.IO.File.Delete(Directory.GetCurrentDirectory() + "/images/lg/" + picture.FileName);
+                System.IO.File.Delete(Directory.GetCurrentDirectory() + "/images/sm/" + picture.FileName);
             }
 
             _context.Picture.Remove(picture);
