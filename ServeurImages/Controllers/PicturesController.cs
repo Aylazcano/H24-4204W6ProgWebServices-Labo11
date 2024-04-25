@@ -81,7 +81,7 @@ namespace ServeurImages.Controllers
                     }));
                     image.Save(Directory.GetCurrentDirectory() + "/images/sm/" + file.FileName);
 
-                    _context.Entry(picture).State = EntityState.Modified;
+                    _context.Picture.Add(picture);
                     await _context.SaveChangesAsync();
                     return Ok();
                 }
