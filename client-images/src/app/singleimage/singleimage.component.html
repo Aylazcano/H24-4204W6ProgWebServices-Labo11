@@ -1,3 +1,5 @@
 <button [routerLink]="['/index']">Retour</button>
 <!-- TO DO: [Étape 4] Ajouter un <img> quit contient une référence vers la grande image stockée sur le serveur -->
-
+<div *ngIf="pictureId">
+    <img [src]="'http://localhost:7243/api/Pictures/GetFile/lg/' + pictureId" alt="{{pictureId}}">
+</div>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,9 +24,9 @@ namespace ServeurImages.Controllers
             _context = context;
         }
 
-        // GET: api/Pictures
+        // GET: api/Pictures/GetPictures
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Picture>>> GetPicture()
+        public async Task<ActionResult<IEnumerable<Picture>>> GetPictures() //J'ai vue que dasn le travail c'est GetPicture, mais je pense que c'est un typo. J'ai laissé GetPictures
         {
             if (_context.Picture == null)
             {
@@ -34,25 +35,30 @@ namespace ServeurImages.Controllers
             return await _context.Picture.ToListAsync();
         }
 
-        // GET: api/Pictures/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Picture>> GetPicture(int id)
+        // GET: api/Pictures/GetFile/{size}/{id}
+        [HttpGet("{size}/{id}")]
+        public async Task<ActionResult> GetFile(string size, int id)
         {
             if (_context.Picture == null)
             {
                 return NotFound();
             }
-            var picture = await _context.Picture.FindAsync(id);
 
-            if (picture == null)
+            Picture? picture = await _context.Picture.FindAsync(id);
+            if (picture == null || picture.FileName == null || picture.MimeType == null)
             {
-                return NotFound();
+                return NotFound(new { Message = "Cette image n'existe pas." });
+            }
+            if (!(Regex.Match(size, "lg|sm").Success))
+            {
+                return BadRequest(new { Message = "La taille de l'image doit être 'lg' ou 'sm'." });
             }
 
-            return picture;
+            byte[] bytes = System.IO.File.ReadAllBytes(Directory.GetCurrentDirectory() + "/images/" + size + "/" + picture.FileName);
+            return File(bytes, picture.MimeType);
         }
 
-        // POST: api/Pictures
+        // POST: api/Pictures/PostPicture
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [DisableRequestSizeLimit]
@@ -73,20 +79,20 @@ namespace ServeurImages.Controllers
                         MimeType = file.ContentType
                     };
 
-                    image.Save(Directory.GetCurrentDirectory() + "/images/lg/" + file.FileName);
+                    image.Save(Directory.GetCurrentDirectory() + "/images/lg/" + picture.FileName);
                     image.Mutate(i => i.Resize(new ResizeOptions()
                     {
                         Mode = ResizeMode.Min,
                         Size = new Size() { Width = 320 }
                     }));
-                    image.Save(Directory.GetCurrentDirectory() + "/images/sm/" + file.FileName);
+                    image.Save(Directory.GetCurrentDirectory() + "/images/sm/" + picture.FileName);
 
-                    _context.Entry(picture).State = EntityState.Modified;
+                    _context.Picture.Add(picture);
                     await _context.SaveChangesAsync();
                     return Ok();
                 }
                 else 
-                    return NotFound(new { Message = "Aucune image fournie" });
+                    return NotFound(new { Message = "Aucune image fournie." });
             }
             catch (Exception)
             {
@@ -95,7 +101,7 @@ namespace ServeurImages.Controllers
 
         }
 
-        // DELETE: api/Pictures/5
+        // DELETE: api/Pictures/DeletePicture/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePicture(int id)
         {
@@ -106,7 +112,13 @@ namespace ServeurImages.Controllers
             var picture = await _context.Picture.FindAsync(id);
             if (picture == null)
             {
-                return NotFound();
+                return NotFound( new {Message = "Cette image n'existe pas."});
+            }
+            
+            if (picture.MimeType != null && picture.FileName != null)
+            {
+                System.IO.File.Delete(Directory.GetCurrentDirectory() + "/images/lg/" + picture.FileName);
+                System.IO.File.Delete(Directory.GetCurrentDirectory() + "/images/sm/" + picture.FileName);
             }
 
             _context.Picture.Remove(picture);
