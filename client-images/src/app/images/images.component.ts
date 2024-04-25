@@ -46,7 +46,7 @@ export class ImagesComponent implements OnInit {
       // Ajouter le Picture nouvellement créé à votre array de Picture
       this.pictures.push(x);
 
-      //this.getPictures(); // Met à jour la liste des images après l'ajout d'une nouvelle image
+      this.getPictures(); // Met à jour la liste des images après l'ajout d'une nouvelle image
     } catch (error) {
       console.error("Une erreur s'est produite lors de l'envoi de l'image :", error);
     }
@@ -55,11 +55,15 @@ export class ImagesComponent implements OnInit {
 
   async getPictures(): Promise<void> {
     // TO DO: [Étape 4] Faire une requête à votre serveur pour obtenir les images
+    let x = await lastValueFrom(this.http.get<Picture[]>("http://localhost:7243/api/Pictures/GetPictures"));
+    console.log(x);
+    this.pictures = x;
   }
 
   async deletePicture(picture: Picture): Promise<void> {
     // TO DO: [Étape 4] Faire une requête à votre serveur pour supprimer une image
-
+    let x = await lastValueFrom(this.http.delete<any>("http://localhost:7243/api/Pictures/DeletePicture/" + picture.id))
+    console.log(x);
     // Une fois que l'image est effacée, il faut mettre à jour les images que l'on affiche
     await this.getPictures();
   }

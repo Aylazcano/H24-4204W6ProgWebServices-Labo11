@@ -24,9 +24,9 @@ namespace ServeurImages.Controllers
             _context = context;
         }
 
-        // GET: api/Pictures
+        // GET: api/Pictures/GetPictures
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Picture>>> GetPicture()
+        public async Task<ActionResult<IEnumerable<Picture>>> GetPictures() //J'ai vue que dasn le travail c'est GetPicture, mais je pense que c'est un typo. J'ai laissé GetPictures
         {
             if (_context.Picture == null)
             {
@@ -35,7 +35,7 @@ namespace ServeurImages.Controllers
             return await _context.Picture.ToListAsync();
         }
 
-        // GET: api/GetFile/{size}/{id}
+        // GET: api/Pictures/GetFile/{size}/{id}
         [HttpGet("{size}/{id}")]
         public async Task<ActionResult> GetFile(string size, int id)
         {
@@ -58,7 +58,7 @@ namespace ServeurImages.Controllers
             return File(bytes, picture.MimeType);
         }
 
-        // POST: api/Pictures
+        // POST: api/Pictures/PostPicture
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [DisableRequestSizeLimit]
@@ -79,13 +79,13 @@ namespace ServeurImages.Controllers
                         MimeType = file.ContentType
                     };
 
-                    image.Save(Directory.GetCurrentDirectory() + "/images/lg/" + file.FileName);
+                    image.Save(Directory.GetCurrentDirectory() + "/images/lg/" + picture.FileName);
                     image.Mutate(i => i.Resize(new ResizeOptions()
                     {
                         Mode = ResizeMode.Min,
                         Size = new Size() { Width = 320 }
                     }));
-                    image.Save(Directory.GetCurrentDirectory() + "/images/sm/" + file.FileName);
+                    image.Save(Directory.GetCurrentDirectory() + "/images/sm/" + picture.FileName);
 
                     _context.Picture.Add(picture);
                     await _context.SaveChangesAsync();
@@ -101,7 +101,7 @@ namespace ServeurImages.Controllers
 
         }
 
-        // DELETE: api/DeletePicture/5
+        // DELETE: api/Pictures/DeletePicture/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePicture(int id)
         {

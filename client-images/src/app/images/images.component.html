@@ -5,6 +5,11 @@
 </form>
 <div *ngFor="let picture of pictures">
   <!-- TO DO: [Étape 4] Ajouter un <img> qui contient une référence vers la petite image stockée sur le serveur -->
-  <img src="http://localhost:7243/api/Pictures/GetFile/sm/{{picture.fileName}}" alt="imageSm">
+  <p>
+    Id : {{picture.id}} 
+    <br>
+    Nom : {{picture.fileName}}
+  </p>
+  <img [routerLink]="['/image', picture.id]" [src]="'http://localhost:7243/api/Pictures/GetFile/sm/' + picture.id" alt="{{picture.fileName}}">
   <button class="delete" (click)="deletePicture(picture)">Effacer</button>
 </div>

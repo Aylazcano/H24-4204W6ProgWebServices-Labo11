@@ -15,6 +15,7 @@ export class SingleImageComponent implements OnInit {
 
   ngOnInit() {
     // TO DO: [Étape 4] Il faut récupérer l'id de l'image qui va être utilisé pour obtenir l'image haute résolution du serveur
+    this.pictureId = this.route.snapshot.paramMap.get("id");
   }
 
 }
