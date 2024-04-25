@@ -1,9 +1,10 @@
-<form #uploadForm="ngForm" (ngSubmit)="uploadPicture()">
+<form (submit)="uploadPicture()">
   <!-- TO DO: [Étape 2] Ajouter les paramètres nécessaires à cet input pour vous permettre de sélectionner un fichier d'image -->
-  <input #fileUploadViewChild type="file" name="image" accept="image/*" ngModel>
+  <input #fileUploadViewChild type="file" name="image" accept="image/*">
   <button class="send" type="submit">Envoyer</button>
 </form>
 <div *ngFor="let picture of pictures">
   <!-- TO DO: [Étape 4] Ajouter un <img> qui contient une référence vers la petite image stockée sur le serveur -->
+  <img src="http://localhost:7243/api/Pictures/GetFile/sm/1" alt="imageSm">
   <button class="delete" (click)="deletePicture(picture)">Effacer</button>
 </div>

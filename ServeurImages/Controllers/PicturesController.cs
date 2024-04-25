@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -35,21 +36,26 @@ namespace ServeurImages.Controllers
         }
 
         // GET: api/Pictures/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Picture>> GetPicture(int id)
+        [HttpGet("{size}/{id}")]
+        public async Task<ActionResult> GetFile(string size, int id)
         {
             if (_context.Picture == null)
             {
                 return NotFound();
             }
-            var picture = await _context.Picture.FindAsync(id);
 
-            if (picture == null)
+            Picture? picture = await _context.Picture.FindAsync(id);
+            if (picture == null || picture.FileName == null || picture.MimeType == null)
             {
-                return NotFound();
+                return NotFound(new { Message = "Cette image n'existe pas!" });
+            }
+            if (!(Regex.Match(size, "lg|sm").Success))
+            {
+                return BadRequest(new { Message = "La taille de l'image doit être 'lg' ou 'sm'." });
             }
 
-            return picture;
+            byte[] bytes = System.IO.File.ReadAllBytes(Directory.GetCurrentDirectory() + "/images/" + size + "/" + picture.FileName);
+            return File(bytes, picture.MimeType);
         }
 
         // POST: api/Pictures
